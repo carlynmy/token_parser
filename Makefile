@@ -15,7 +15,7 @@ STANDART_BUILD= $(DEBUG_BUILD_TYPE) $(GCOV_NO_REPORT_FLAGS) $(GCOV_NO_REPORT_LIB
 PATH_BUILD=build
 PATH_REPORT=report
 
-.PHONY: all clean rebuild libtoken_parser.a test valgrind leaks gcov_report 
+.PHONY: all clean rebuild libtoken_parser.a test valgrind leaks gcov_report build_tests build_tests_cov
 all: test
 
 clean:
@@ -28,26 +28,26 @@ libtoken_parser.a:
 	cmake -B $(PATH_BUILD) $(STANDART_BUILD) 
 	cmake --build $(PATH_BUILD) --target token_parser
 
-test:
-	cmake -B $(PATH_BUILD) $(STANDART_BUILD) 
-	cmake --build $(PATH_BUILD) --target token_parser_tests
+test: build_tests
 	./$(PATH_BUILD)/token_parser_tests
 
-gcov_report: 
+gcov_report: build_tests_cov
 	rm -rf $(PATH_REPORT)
-	cmake -B $(PATH_BUILD) $(REPORT_BUILD) 
-	cmake --build $(PATH_BUILD) --target token_parser_tests
 	./$(PATH_BUILD)/token_parser_tests
 	mkdir $(PATH_REPORT)	
 	gcovr --html-details -o $(PATH_REPORT)/index.html
 	open $(PATH_REPORT)/index.html
 
-valgrind:
-	cmake -B $(PATH_BUILD) $(STANDART_BUILD)
-	cmake --build $(PATH_BUILD) --target token_parser_tests
+valgrind: build_tests
 	valgrind $(PATH_BUILD)/token_parser_tests
 
-leaks:
-	cmake -B $(PATH_BUILD) 
-	cmake --build $(PATH_BUILD) --target token_parser_tests
+leaks: build_tests
 	leaks -atExit -- $(PATH_BUILD)/token_parser_tests
+
+build_tests:
+	cmake -B $(PATH_BUILD) $(STANDART_BUILD) 
+	cmake --build $(PATH_BUILD) --target token_parser_tests
+
+build_tests_cov:
+	cmake -B $(PATH_BUILD) $(REPORT_BUILD) 
+	cmake --build $(PATH_BUILD) --target token_parser_tests

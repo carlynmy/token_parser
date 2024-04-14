@@ -67,40 +67,41 @@ USAGE:
 
 */
 
-#ifndef TOKEN_PARSER_STRING_PARSER_H_
-#define TOKEN_PARSER_STRING_PARSER_H_
+#ifndef TOKEN_PARSER_STREAM_PARSER_H_
+#define TOKEN_PARSER_STREAM_PARSER_H_
 
+#include <istream>
 #include <string>
 
 #include "settings.h"
+#include "string_parser.h"
 #include "token.h"
 
 namespace TokenParser {
 
-/// @brief Token parser. Parse string to tokens. token is nothing(null), int,
+/// @brief Stream parser. Parse stream to tokens. token is nothing(null), int,
 /// uint, float, id(substring is compared by id).
-class StringParser {
+template <typename CharT = char>
+class StreamParser {
  public:
-  using size_type = std::string::size_type;
+  using size_type = StringParser::size_type;
+  using char_type = CharT;
+  using stream_type = std::basic_istream<char_type>;
 
-  StringParser();
-  StringParser(const std::string* str, size_type i = 0);
-  StringParser(const Settings& settings);
-  StringParser(const Settings& settings, const std::string* str,
-               size_type i = 0);
-  StringParser(Settings&& settings);
-  StringParser(Settings&& settings, const std::string* str, size_type i = 0);
-  StringParser(const StringParser& other) = default;
-  StringParser(StringParser&& other) noexcept = default;
-  StringParser& operator=(const StringParser& other) = default;
-  StringParser& operator=(StringParser&& other) noexcept = default;
-  virtual ~StringParser();
+  StreamParser();
+  StreamParser(const Settings& settings);
+  StreamParser(Settings&& settings);
+  StreamParser(stream_type* stream);
+  StreamParser(const Settings& settings, stream_type* stream);
+  StreamParser(Settings&& settings, stream_type* stream);
+  StreamParser(const StreamParser& other) = default;
+  StreamParser(StreamParser&& other) noexcept = default;
+  StreamParser& operator=(const StreamParser& other) = default;
+  StreamParser& operator=(StreamParser&& other) noexcept = default;
+  virtual ~StreamParser();
 
-  /// @brief Set the string that will be parsed. Sets i = 0.
-  void SetStr(const std::string* str);
-
-  /// @brief Set the index from which the next parsing will be performed.
-  void SetI(size_type i);
+  /// @brief Set the string that will be parsed.
+  void SetStream(stream_type* str);
 
   /// @brief Set settings.
   void SetSettings(const Settings& settings);
@@ -108,12 +109,18 @@ class StringParser {
   /// @brief set settings.
   void SetSettings(Settings&& settings);
 
+  stream_type* GetStream() const;
+
+  /// @brief Get current buffered-string from stream.
   const std::string* GetStr() const;
+
+  /// @brief Get index current buffered-string from stream.
   size_type GetI() const;
+
   const Settings& GetSettings() const;
   Settings& GetSettings();
 
-  /// @brief Check if parsing str is end or contain only space chars
+  /// @brief Check if stream is end or contain only space chars
   /// (settings.GetSpaceChars()).
   bool IsEnd() const;
 
@@ -144,29 +151,17 @@ class StringParser {
   Token NextThisId(Token::id_type id);
 
  private:
-  struct WordIdx {
-    size_type start_;
-    size_type len_;
-  };
+  /// @brief true if we can parse further, false if all end.
+  bool CheckBuffOrUpdate();
+  void UpdateBuff(char_type delim);
 
-  bool IsSpace(char ch) const;
-  bool IsWordDelim(char ch) const;
-  size_type NextParsingStart() const;
-
-  Token::int_type StrToInt(size_type start, size_type& len) const;
-  Token::uint_type StrToUint(size_type start, size_type& len) const;
-  Token::float_type StrToFloat(size_type start, size_type& len) const;
-
-  bool IsIdNext(size_type i, const std::string& word) const;
-
-  WordIdx NextWordIdx() const;
-  std::string WordIdxToString(const WordIdx& word_idx) const;
-
-  Settings settings_;
-  const std::string* str_;
-  size_type i_;
+  StringParser string_parser_;
+  std::basic_istream<char_type>* stream_;
+  std::string buff_;
 };
 
 }  // namespace TokenParser
 
-#endif  // TOKEN_PARSER_STRING_PARSER_H_
+#include "../../src/stream_parser.inc"
+
+#endif  // TOKEN_PARSER_STREAM_PARSER_H_

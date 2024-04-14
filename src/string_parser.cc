@@ -31,7 +31,10 @@ StringParser::StringParser(Settings&& settings, const std::string* str,
 
 StringParser::~StringParser() {}
 
-void StringParser::SetStr(const std::string* str) { str_ = str; }
+void StringParser::SetStr(const std::string* str) {
+  str_ = str;
+  i_ = size_type(0);
+}
 
 void StringParser::SetI(size_type i) { i_ = i; }
 
