@@ -1,66 +1,71 @@
-#include "../include/token_parser/token_parser.h"
+#include "../include/token_parser/string_parser.h"
 
 #include <cstdlib>
 #include <string>
 #include <utility>
 
-#include "settings.h"
-#include "token.h"
+#include "../include/token_parser/settings.h"
+#include "../include/token_parser/token.h"
 
 namespace TokenParser {
 
-Parser::Parser() : Parser(Settings(), nullptr, size_type(0)) {}
+StringParser::StringParser()
+    : StringParser(Settings(), nullptr, size_type(0)) {}
 
-Parser::Parser(const Settings& settings)
-    : Parser(settings, nullptr, size_type(0)) {}
+StringParser::StringParser(const Settings& settings)
+    : StringParser(settings, nullptr, size_type(0)) {}
 
-Parser::Parser(Settings&& settings)
-    : Parser(std::move(settings), nullptr, size_type(0)) {}
+StringParser::StringParser(Settings&& settings)
+    : StringParser(std::move(settings), nullptr, size_type(0)) {}
 
-Parser::Parser(const std::string* str, size_type i)
-    : Parser(Settings(), str, i) {}
+StringParser::StringParser(const std::string* str, size_type i)
+    : StringParser(Settings(), str, i) {}
 
-Parser::Parser(const Settings& settings, const std::string* str, size_type i)
+StringParser::StringParser(const Settings& settings, const std::string* str,
+                           size_type i)
     : settings_(settings), str_(str), i_(i) {}
 
-Parser::Parser(Settings&& settings, const std::string* str, size_type i)
+StringParser::StringParser(Settings&& settings, const std::string* str,
+                           size_type i)
     : settings_(std::move(settings)), str_(str), i_(i) {}
 
-Parser::~Parser() {}
+StringParser::~StringParser() {}
 
-void Parser::SetStr(const std::string* str) { str_ = str; }
+void StringParser::SetStr(const std::string* str) { str_ = str; }
 
-void Parser::SetI(size_type i) { i_ = i; }
+void StringParser::SetI(size_type i) { i_ = i; }
 
-void Parser::SetSettings(const Settings& settings) { settings_ = settings; }
+void StringParser::SetSettings(const Settings& settings) {
+  settings_ = settings;
+}
 
-void Parser::SetSettings(Settings&& settings) {
+void StringParser::SetSettings(Settings&& settings) {
   settings_ = std::move(settings);
 }
 
-const std::string* Parser::GetStr() const { return str_; }
+const std::string* StringParser::GetStr() const { return str_; }
 
-Parser::size_type Parser::GetI() const { return i_; }
+StringParser::size_type StringParser::GetI() const { return i_; }
 
-const Settings& Parser::GetSettings() const { return settings_; }
+const Settings& StringParser::GetSettings() const { return settings_; }
 
-Settings& Parser::GetSettings() { return settings_; }
+Settings& StringParser::GetSettings() { return settings_; }
 
-bool Parser::IsEnd() const {
+bool StringParser::IsEnd() const {
   if (str_ == nullptr) return true;
   size_type i = NextParsingStart();
   if (i >= str_->length()) return true;
   return false;
 }
 
-std::string Parser::NextWord() {
+std::string StringParser::NextWord() {
   if (str_ == nullptr) return "";
   WordIdx word_idx = NextWordIdx();
   i_ = word_idx.start_ + word_idx.len_;
   return WordIdxToString(word_idx);
 }
 
-Token Parser::NextInt() {
+Token StringParser::NextInt() {
   if (str_ == nullptr) return Token(Token::Type::kTypeNull);
   size_type i = NextParsingStart();
   if (i >= str_->length()) return Token(Token::Type::kTypeNull);
@@ -73,7 +78,7 @@ Token Parser::NextInt() {
   return Token(value);
 }
 
-Token Parser::NextUint() {
+Token StringParser::NextUint() {
   if (str_ == nullptr) return Token(Token::Type::kTypeNull);
   size_type i = NextParsingStart();
   if (i >= str_->length()) return Token(Token::Type::kTypeNull);
@@ -86,7 +91,7 @@ Token Parser::NextUint() {
   return Token(value);
 }
 
-Token Parser::NextFloat() {
+Token StringParser::NextFloat() {
   if (str_ == nullptr) return Token(Token::Type::kTypeNull);
   size_type i = NextParsingStart();
   if (i >= str_->length()) return Token(Token::Type::kTypeNull);
@@ -99,7 +104,7 @@ Token Parser::NextFloat() {
   return Token(value);
 }
 
-Token Parser::NextId() {
+Token StringParser::NextId() {
   if (str_ == nullptr) return Token(Token::Type::kTypeNull);
   size_type i = NextParsingStart();
   if (i >= str_->length()) return Token(Token::Type::kTypeNull);
@@ -114,7 +119,7 @@ Token Parser::NextId() {
   return Token(Token::Type::kTypeNull);
 }
 
-Token Parser::NextThisId(Token::id_type id) {
+Token StringParser::NextThisId(Token::id_type id) {
   if (str_ == nullptr) return Token(Token::Type::kTypeNull);
   size_type i = NextParsingStart();
   if (i >= str_->length()) return Token(Token::Type::kTypeNull);
@@ -131,25 +136,25 @@ Token Parser::NextThisId(Token::id_type id) {
   return Token(Token::Type::kTypeNull);
 }
 
-bool Parser::IsSpace(char ch) const {
+bool StringParser::IsSpace(char ch) const {
   for (auto i : settings_.GetSpaceChars())
     if (ch == i) return true;
   return false;
 }
 
-bool Parser::IsWordDelim(char ch) const {
+bool StringParser::IsWordDelim(char ch) const {
   for (auto i : settings_.GetWordDelimChars())
     if (ch == i) return true;
   return false;
 }
 
-Parser::size_type Parser::NextParsingStart() const {
+StringParser::size_type StringParser::NextParsingStart() const {
   size_type i = i_;
   while (i < str_->length() && IsSpace((*str_)[i])) ++i;
   return i;
 }
 
-Token::int_type Parser::StrToInt(size_type start, size_type& len) const {
+Token::int_type StringParser::StrToInt(size_type start, size_type& len) const {
   const char* pstart = str_->c_str() + start;
   char* pend;
   long long ans = std::strtoll(pstart, &pend, 10);
@@ -158,7 +163,8 @@ Token::int_type Parser::StrToInt(size_type start, size_type& len) const {
   return static_cast<Token::int_type>(ans);
 }
 
-Token::uint_type Parser::StrToUint(size_type start, size_type& len) const {
+Token::uint_type StringParser::StrToUint(size_type start,
+                                         size_type& len) const {
   const char* pstart = str_->c_str() + start;
   char* pend;
   unsigned long long ans = std::strtoull(pstart, &pend, 10);
@@ -167,7 +173,8 @@ Token::uint_type Parser::StrToUint(size_type start, size_type& len) const {
   return static_cast<Token::uint_type>(ans);
 }
 
-Token::float_type Parser::StrToFloat(size_type start, size_type& len) const {
+Token::float_type StringParser::StrToFloat(size_type start,
+                                           size_type& len) const {
   const char* pstart = str_->c_str() + start;
   char* pend;
   long double ans = std::strtold(pstart, &pend);
@@ -176,7 +183,7 @@ Token::float_type Parser::StrToFloat(size_type start, size_type& len) const {
   return static_cast<Token::float_type>(ans);
 }
 
-bool Parser::IsIdNext(size_type i, const std::string& word) const {
+bool StringParser::IsIdNext(size_type i, const std::string& word) const {
   if (word.length() == 1 && IsWordDelim(word[0]) && word[0] == (*str_)[i]) {
     return true;
   }
@@ -197,7 +204,7 @@ bool Parser::IsIdNext(size_type i, const std::string& word) const {
   return true;
 }
 
-Parser::WordIdx Parser::NextWordIdx() const {
+StringParser::WordIdx StringParser::NextWordIdx() const {
   size_type start = NextParsingStart();
   size_type len = size_type(0);
   if (start >= str_->length()) return WordIdx{(size_type(0)), (size_type(0))};
@@ -210,7 +217,7 @@ Parser::WordIdx Parser::NextWordIdx() const {
   return WordIdx{start, len};
 }
 
-std::string Parser::WordIdxToString(const WordIdx& word_idx) const {
+std::string StringParser::WordIdxToString(const WordIdx& word_idx) const {
   return str_->substr(word_idx.start_, word_idx.len_);
 }
 

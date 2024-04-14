@@ -1,5 +1,5 @@
 
-#include "settings.h"
+#include "../include/token_parser/settings.h"
 
 #include <map>
 #include <string>

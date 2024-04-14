@@ -5,11 +5,11 @@ include_directories(
 )
 
 set(TOKEN_PARSER_SOURCE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/token_parser/token_parser.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/token_parser.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/token.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/token_parser/string_parser.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/token_parser/token.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/token_parser/settings.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/string_parser.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/src/token.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/settings.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/settings.cc
 )
 

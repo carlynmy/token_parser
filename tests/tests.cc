@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
 void TestTokenParser::SetUpTestSuite() {
   TokenParser::Settings::TokenIds token_ids;
   TokenParser::Settings settings;
-  TokenParser::Parser parser;
+  TokenParser::StringParser parser;
 
   token_ids.clear();
   token_ids.insert({0, ";"});
@@ -66,7 +66,7 @@ void TestTokenParser::SetUpTestSuite() {
   parsers_.push_back(parser);
 }
 
-std::vector<TokenParser::Parser> TestTokenParser::parsers_{};
+std::vector<TokenParser::StringParser> TestTokenParser::parsers_{};
 
 std::vector<std::string> TestTokenParser::strs_ = {
     "int32_t main() { int a=3.3; }",

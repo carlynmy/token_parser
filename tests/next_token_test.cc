@@ -2,26 +2,26 @@
 
 #include <string>
 
-#include "../include/token_parser/token_parser.h"
+#include "../include/token_parser/string_parser.h"
 
 TEST(NextTokenNoStr, NextWord) {
-  TokenParser::Parser parser(nullptr);
+  TokenParser::StringParser parser(nullptr);
   std::string str = parser.NextWord();
   ASSERT_EQ("", str);
 }
 
 TEST(NextTokenNoStr, NextInt) {
-  TokenParser::Parser parser(nullptr);
+  TokenParser::StringParser parser(nullptr);
   TokenParser::Token tok = parser.NextInt();
   ASSERT_TRUE(tok.IsNull());
 }
 TEST(NextTokenNoStr, NextUint) {
-  TokenParser::Parser parser(nullptr);
+  TokenParser::StringParser parser(nullptr);
   TokenParser::Token tok = parser.NextUint();
   ASSERT_TRUE(tok.IsNull());
 }
 TEST(NextTokenNoStr, NextFloat) {
-  TokenParser::Parser parser(nullptr);
+  TokenParser::StringParser parser(nullptr);
   TokenParser::Token tok = parser.NextFloat();
   ASSERT_TRUE(tok.IsNull());
 }
@@ -30,14 +30,14 @@ TEST(NextTokenNoStr, NextToken) {
   TokenParser::Settings::TokenIds ids = {{0, "ada"}, {0, "bobbb"}};
   TokenParser::Settings settings;
   settings.SetTokenIds(ids);
-  TokenParser::Parser parser(settings, nullptr);
+  TokenParser::StringParser parser(settings, nullptr);
   TokenParser::Token tok = parser.NextId();
   ASSERT_TRUE(tok.IsNull());
 }
 
 TEST(NextTokenEndLen, NextWord) {
   std::string parsing_str = "it is string";
-  TokenParser::Parser parser(&parsing_str);
+  TokenParser::StringParser parser(&parsing_str);
   parser.SetI(13);
   std::string str = parser.NextWord();
   ASSERT_TRUE(str.empty());
@@ -48,7 +48,7 @@ TEST(NextTokenEndLen, NextWord) {
 
 TEST(NextTokenEndLen, NextInt) {
   std::string parsing_str = "it is string";
-  TokenParser::Parser parser(&parsing_str);
+  TokenParser::StringParser parser(&parsing_str);
   parser.SetI(13);
   TokenParser::Token tok = parser.NextInt();
   ASSERT_TRUE(tok.IsNull());
@@ -59,7 +59,7 @@ TEST(NextTokenEndLen, NextInt) {
 
 TEST(NextTokenEndLen, NextUint) {
   std::string parsing_str = "it is string";
-  TokenParser::Parser parser(&parsing_str);
+  TokenParser::StringParser parser(&parsing_str);
   parser.SetI(13);
   TokenParser::Token tok = parser.NextUint();
   ASSERT_TRUE(tok.IsNull());
@@ -70,7 +70,7 @@ TEST(NextTokenEndLen, NextUint) {
 
 TEST(NextTokenEndLen, NextFloat) {
   std::string parsing_str = "it is string";
-  TokenParser::Parser parser(&parsing_str);
+  TokenParser::StringParser parser(&parsing_str);
   parser.SetI(13);
   TokenParser::Token tok = parser.NextFloat();
   ASSERT_TRUE(tok.IsNull());
@@ -84,7 +84,7 @@ TEST(NextTokenEndLen, NextId) {
   TokenParser::Settings::TokenIds ids = {{0, "ada"}, {0, "bobbb"}};
   TokenParser::Settings settings;
   settings.SetTokenIds(ids);
-  TokenParser::Parser parser(settings, &parsing_str);
+  TokenParser::StringParser parser(settings, &parsing_str);
 
   parser.SetI(13);
   TokenParser::Token tok = parser.NextId();
@@ -95,7 +95,7 @@ TEST(NextTokenEndLen, NextId) {
 }
 TEST(NextTokenEndSpaces, NextInt) {
   std::string parsing_str = "it is string\t\t   \t  \n  ";
-  TokenParser::Parser parser(&parsing_str);
+  TokenParser::StringParser parser(&parsing_str);
   parser.SetI(13);
   TokenParser::Token tok = parser.NextInt();
   ASSERT_TRUE(tok.IsNull());
@@ -103,7 +103,7 @@ TEST(NextTokenEndSpaces, NextInt) {
 
 TEST(NextTokenEndSpaces, NextUint) {
   std::string parsing_str = "it is string\t\t   \t  \n  ";
-  TokenParser::Parser parser(&parsing_str);
+  TokenParser::StringParser parser(&parsing_str);
   parser.SetI(13);
   TokenParser::Token tok = parser.NextUint();
   ASSERT_TRUE(tok.IsNull());
@@ -111,7 +111,7 @@ TEST(NextTokenEndSpaces, NextUint) {
 
 TEST(NextTokenEndSpaces, NextFloat) {
   std::string parsing_str = "it is string\t\t   \t  \n  ";
-  TokenParser::Parser parser(&parsing_str);
+  TokenParser::StringParser parser(&parsing_str);
   parser.SetI(13);
   TokenParser::Token tok = parser.NextFloat();
   ASSERT_TRUE(tok.IsNull());
@@ -122,7 +122,7 @@ TEST(NextTokenEndSpaces, NextId) {
   TokenParser::Settings::TokenIds ids = {{0, "ada"}, {0, "bobbb"}};
   TokenParser::Settings settings;
   settings.SetTokenIds(ids);
-  TokenParser::Parser parser(settings, &parsing_str);
+  TokenParser::StringParser parser(settings, &parsing_str);
 
   parser.SetI(13);
   TokenParser::Token tok = parser.NextId();
@@ -132,7 +132,7 @@ TEST(NextTokenEndSpaces, NextId) {
 TEST(IsEnd, Common) {
   std::string parsing_str = "is is striiiii   \t\t\n\n\n";
 
-  TokenParser::Parser parser(nullptr);
+  TokenParser::StringParser parser(nullptr);
   ASSERT_TRUE(parser.IsEnd());
   parser.SetStr(&parsing_str);
 
@@ -152,7 +152,7 @@ TEST(NextWord, WordIsWordDelim) {
   std::string parsing_str = "word==word == word = = word= =word";
   TokenParser::Settings settings;
   settings.SetWordDelim(settings.GetWordDelimChars() + "=");
-  TokenParser::Parser parser(settings, &parsing_str);
+  TokenParser::StringParser parser(settings, &parsing_str);
 
   std::string word = "word", eq = "=";
   ASSERT_EQ(parser.NextWord(), word);
@@ -176,7 +176,7 @@ TEST(Delims, NoWordDelimNoSpace) {
   settings.SetSpaceChars("");
 
   std::string parsing_str = "342 322";
-  TokenParser::Parser parser(settings, &parsing_str);
+  TokenParser::StringParser parser(settings, &parsing_str);
 
   std::string space = " 322";
   ASSERT_EQ(parser.NextInt().GetInt(), 342);
@@ -189,7 +189,7 @@ TEST(Delims, NoSpace) {
   settings.SetSpaceChars("");
 
   std::string parsing_str = "342 322";
-  TokenParser::Parser parser(settings, &parsing_str);
+  TokenParser::StringParser parser(settings, &parsing_str);
 
   std::string space = " ";
   ASSERT_EQ(parser.NextInt().GetInt(), 342);
@@ -203,7 +203,7 @@ TEST(Delims, SpaceNotWordDelim) {
   settings.SetSpaceChars(" ");
 
   std::string parsing_str = "342 322";
-  TokenParser::Parser parser(settings, &parsing_str);
+  TokenParser::StringParser parser(settings, &parsing_str);
 
   ASSERT_EQ(parser.NextInt().GetInt(), 342);
   ASSERT_EQ(parser.NextInt().GetInt(), 322);
@@ -215,7 +215,7 @@ TEST(NextThisId, Common) {
   settings.SetTokenIds(tokens);
 
   std::string parsing_str = "int32_t bro";
-  TokenParser::Parser parser(settings, nullptr);
+  TokenParser::StringParser parser(settings, nullptr);
 
   ASSERT_TRUE(parser.NextThisId(TokenParser::Token::id_type(1)).IsNull());
   parser.SetStr(&parsing_str);

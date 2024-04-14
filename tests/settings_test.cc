@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../include/token_parser/token_parser.h"
+#include "../include/token_parser/string_parser.h"
 
 using TokenParser::Settings;
 

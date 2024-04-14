@@ -16,7 +16,7 @@ TokenParser::Settings settings;
 settings.SetTokenIds(token_ids);
 settings.SetWordDelim(settings.GetWordDelimChars() + ";(){}=");
 settings.SetTokenIdIsFullWord(true);
-TokenParser::Parser parser(settings);
+TokenParser::StringParser parser(settings);
 
 std::string str = "int32_t main() { int a=3.3; }";
 parser.SetStr(&str);
@@ -41,7 +41,7 @@ token_ids.insert({1, "cos"});
 TokenParser::Settings settings;
 settings.SetTokenIds(token_ids);
 settings.SetTokenIdIsFullWord(false);
-TokenParser::Parser parser(settings);
+TokenParser::StringParser parser(settings);
 
 std::string str = "sincos";
 parser.SetStr(&str);
@@ -51,33 +51,34 @@ TokenParser::Token token_cos = parser.NextId();   // GetId() == 1
 
 */
 
-#ifndef TOKEN_PARSER_TOKEN_PARSER_H_
-#define TOKEN_PARSER_TOKEN_PARSER_H_
+#ifndef TOKEN_PARSER_STRING_PARSER_H_
+#define TOKEN_PARSER_STRING_PARSER_H_
 
 #include <string>
 
-#include "../../src/settings.h"
-#include "../../src/token.h"
+#include "settings.h"
+#include "token.h"
 
 namespace TokenParser {
 
 /// @brief Token parser. Parse string to tokens. token is nothing(null), int,
 /// uint, float, id(substring is compared by id).
-class Parser {
+class StringParser {
  public:
   using size_type = std::string::size_type;
 
-  Parser();
-  Parser(const Settings& settings);
-  Parser(Settings&& settings);
-  Parser(const std::string* str, size_type i = 0);
-  Parser(const Settings& settings, const std::string* str, size_type i = 0);
-  Parser(Settings&& settings, const std::string* str, size_type i = 0);
-  Parser(const Parser& other) = default;
-  Parser(Parser&& other) noexcept = default;
-  Parser& operator=(const Parser& other) = default;
-  Parser& operator=(Parser&& other) noexcept = default;
-  virtual ~Parser();
+  StringParser();
+  StringParser(const std::string* str, size_type i = 0);
+  StringParser(const Settings& settings);
+  StringParser(const Settings& settings, const std::string* str,
+               size_type i = 0);
+  StringParser(Settings&& settings);
+  StringParser(Settings&& settings, const std::string* str, size_type i = 0);
+  StringParser(const StringParser& other) = default;
+  StringParser(StringParser&& other) noexcept = default;
+  StringParser& operator=(const StringParser& other) = default;
+  StringParser& operator=(StringParser&& other) noexcept = default;
+  virtual ~StringParser();
 
   /// @brief Set the string that will be parsed. Sets i = 0.
   void SetStr(const std::string* str);
@@ -152,4 +153,4 @@ class Parser {
 
 }  // namespace TokenParser
 
-#endif  // TOKEN_PARSER_TOKEN_PARSER_H_
+#endif  // TOKEN_PARSER_STRING_PARSER_H_

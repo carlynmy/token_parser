@@ -3,11 +3,11 @@
 #include <string>
 #include <vector>
 
-#include "../include/token_parser/token_parser.h"
+#include "../include/token_parser/string_parser.h"
 #include "tests.h"
 
-using TokenParser::Parser;
 using TokenParser::Settings;
+using TokenParser::StringParser;
 using TokenParser::Token;
 
 struct TestTokenParserTokenSeqDataNextRes {
@@ -21,7 +21,7 @@ struct TestTokenParserTokenSeqData {
 
   int parser_idx_;
   int parsing_str_idx_;
-  TokenParser::Parser::size_type i_;
+  TokenParser::StringParser::size_type i_;
   int seq_idx_;
 
   static std::vector<Seq> seqs_;
@@ -369,7 +369,8 @@ TEST_P(TestTokenParserTokenSeq, Common) {
   TestTokenParserTokenSeqData& test_data =
       TestTokenParserTokenSeq::test_data_[num_test];
 
-  TokenParser::Parser parser(TestTokenParser::parsers_[test_data.parser_idx_]);
+  TokenParser::StringParser parser(
+      TestTokenParser::parsers_[test_data.parser_idx_]);
   parser.SetStr(&TestTokenParser::strs_[test_data.parsing_str_idx_]);
   parser.SetI(test_data.i_);
 
