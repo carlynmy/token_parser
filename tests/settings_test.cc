@@ -1,68 +1,53 @@
 #include <gtest/gtest.h>
 
 #include "../include/token_parser/string_parser.h"
+#include "tests.h"
 
 using TokenParser::Settings;
 
-bool TokenIdsEq(const Settings::TokenIds& a, const Settings::TokenIds& b) {
-  if (a.size() != b.size()) return false;
-
-  auto ia = a.begin(), ib = b.begin();
-  while (ia != a.end()) {
-    if (ia->first != ib->first || ia->second != ib->second) return false;
-
-    ++ia;
-    ++ib;
-  }
-
-  return true;
-}
-
 TEST(Settings, Common) {
-  Settings settings;
-  Settings::TokenIds tokens = {{0, "a"}};
-  Settings::TokenIds tokens2 = tokens;
-  settings.SetTokenIds(tokens);
-  settings.SetTokenIds(std::move(tokens2));
+  Settings::TokenIds token_ids = {{0, "aad"}};
+  Settings::TokenIds token_ids2 = {{0, "aad"}};
+  std::string space_chars = "asdas";
+  std::string space_chars2 = "asdas";
+  std::string word_delim_chars = "asdasbbb";
+  std::string word_delim_chars2 = "asdasbbb";
+  bool token_id_is_full_word = false;
+  bool word_may_surrounded_by_qoutes = true;
+  Settings::AppropriateQuotes appropriate_quotes = {{'a', 'b'}};
+  Settings::AppropriateQuotes appropriate_quotes2 = {{'a', 'b'}};
 
-  std::string w = "aaa", b = "bbb";
-  std::string cw = w, cb = b;
-  settings.SetSpaceChars(w);
-  settings.SetWordDelim(b);
-  settings.SetSpaceChars(std::move(cw));
-  settings.SetWordDelim(std::move(cb));
-  settings.SetTokenIdIsFullWord(false);
+  Settings a, b, c;
+  a.SetTokenIds(token_ids);
+  a.SetSpaceChars(space_chars);
+  a.SetWordDelim(word_delim_chars);
+  a.SetTokenIdIsFullWord(token_id_is_full_word);
+  a.SetWordMaySurrondedByQoutes(word_may_surrounded_by_qoutes);
+  a.SetAppropriateQuotes(appropriate_quotes);
+  b.SetTokenIds(std::move(token_ids2));
+  b.SetSpaceChars(std::move(space_chars2));
+  b.SetWordDelim(std::move(word_delim_chars2));
+  b.SetTokenIdIsFullWord(token_id_is_full_word);
+  b.SetWordMaySurrondedByQoutes(word_may_surrounded_by_qoutes);
+  b.SetAppropriateQuotes(std::move(appropriate_quotes2));
+  c.GetTokenIds() = token_ids;
+  c.GetSpaceChars() = space_chars;
+  c.GetWordDelimChars() = word_delim_chars;
+  c.SetTokenIdIsFullWord(token_id_is_full_word);
+  c.SetWordMaySurrondedByQoutes(word_may_surrounded_by_qoutes);
+  c.GetAppropriateQuotes() = appropriate_quotes;
 
-  ASSERT_EQ(settings.GetSpaceChars(), w);
-  ASSERT_EQ(settings.GetWordDelimChars(), b);
-  ASSERT_TRUE(!settings.GetTokenIdIsFullWord());
-  ASSERT_TRUE(TokenIdsEq(settings.GetTokenIds(), tokens));
-  const Settings& setr = settings;
-  ASSERT_TRUE(TokenIdsEq(setr.GetTokenIds(), tokens));
+  ASSERT_TRUE(SettingsEq(a, b));
+  ASSERT_TRUE(SettingsEq(a, c));
 
-  Settings s2(settings);
-  ASSERT_EQ(s2.GetSpaceChars(), w);
-  ASSERT_EQ(s2.GetWordDelimChars(), b);
-  ASSERT_TRUE(!s2.GetTokenIdIsFullWord());
-  ASSERT_TRUE(TokenIdsEq(s2.GetTokenIds(), tokens));
+  Settings scopy(a);
+  Settings smove(std::move(b));
+  Settings ocopy, omove;
+  ocopy = a;
+  omove = std::move(c);
 
-  Settings s3;
-  s3 = s2;
-  ASSERT_EQ(s3.GetSpaceChars(), w);
-  ASSERT_EQ(s3.GetWordDelimChars(), b);
-  ASSERT_TRUE(!s3.GetTokenIdIsFullWord());
-  ASSERT_TRUE(TokenIdsEq(s3.GetTokenIds(), tokens));
-
-  Settings s4(std::move(s3));
-  ASSERT_EQ(s4.GetSpaceChars(), w);
-  ASSERT_EQ(s4.GetWordDelimChars(), b);
-  ASSERT_TRUE(!s4.GetTokenIdIsFullWord());
-  ASSERT_TRUE(TokenIdsEq(s4.GetTokenIds(), tokens));
-
-  Settings s5;
-  s5 = std::move(s4);
-  ASSERT_EQ(s5.GetSpaceChars(), w);
-  ASSERT_EQ(s5.GetWordDelimChars(), b);
-  ASSERT_TRUE(!s5.GetTokenIdIsFullWord());
-  ASSERT_TRUE(TokenIdsEq(s5.GetTokenIds(), tokens));
+  ASSERT_TRUE(SettingsEq(a, scopy));
+  ASSERT_TRUE(SettingsEq(a, ocopy));
+  ASSERT_TRUE(SettingsEq(a, smove));
+  ASSERT_TRUE(SettingsEq(a, omove));
 }

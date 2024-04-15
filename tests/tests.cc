@@ -2,9 +2,58 @@
 
 #include <gtest/gtest.h>
 
+#include "../include/token_parser/file_parser.h"
+#include "../include/token_parser/stream_parser.h"
+#include "../include/token_parser/string_parser.h"
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
+}
+
+bool SettingsTokenIdsEq(const TokenParser::Settings::TokenIds& a,
+                        const TokenParser::Settings::TokenIds& b) {
+  if (a.size() != b.size()) return false;
+
+  auto ia = a.begin(), ib = b.begin();
+  while (ia != a.end()) {
+    if (ia->first != ib->first || ia->second != ib->second) return false;
+
+    ++ia;
+    ++ib;
+  }
+
+  return true;
+}
+
+bool SettingsAppropriateQoutesEq(
+    const TokenParser::Settings::AppropriateQuotes& a,
+    const TokenParser::Settings::AppropriateQuotes& b) {
+  if (a.size() != b.size()) return false;
+
+  auto ia = a.begin(), ib = b.begin();
+  while (ia != a.end()) {
+    if (ia->first != ib->first || ia->second != ib->second) return false;
+
+    ++ia;
+    ++ib;
+  }
+
+  return true;
+}
+
+bool SettingsEq(const TokenParser::Settings& a,
+                const TokenParser::Settings& b) {
+  if (!SettingsTokenIdsEq(a.GetTokenIds(), b.GetTokenIds())) return false;
+  if (!SettingsAppropriateQoutesEq(a.GetAppropriateQuotes(),
+                                   b.GetAppropriateQuotes()))
+    return false;
+  if (a.GetSpaceChars() != b.GetSpaceChars()) return false;
+  if (a.GetWordDelimChars() != b.GetWordDelimChars()) return false;
+  if (a.GetTokenIdIsFullWord() != b.GetTokenIdIsFullWord()) return false;
+  if (a.GetWordMaySurrondedByQoutes() != b.GetWordMaySurrondedByQoutes())
+    return false;
+  return true;
 }
 
 void TestTokenParser::SetUpTestSuite() {
@@ -62,6 +111,28 @@ void TestTokenParser::SetUpTestSuite() {
   settings.SetTokenIds(token_ids);
   settings.SetWordDelim(settings.GetWordDelimChars() + ";(){}=");
   settings.SetTokenIdIsFullWord(false);
+  parser.SetSettings(settings);
+  parsers_.push_back(parser);
+
+  token_ids.clear();
+  token_ids.insert({0, ";"});
+  token_ids.insert({1, "("});
+  token_ids.insert({2, ")"});
+  token_ids.insert({3, "{"});
+  token_ids.insert({4, "}"});
+  token_ids.insert({5, "c"});
+  token_ids.insert({6, "int32_t"});
+  token_ids.insert({7, "="});
+  token_ids.insert({8, "'token with space'"});
+  token_ids.insert({9, "\"token with space\""});
+  token_ids.insert({10, "<token with space>"});
+  token_ids.insert({11, "include"});
+  token_ids.insert({12, "#"});
+  settings.SetTokenIds(token_ids);
+  settings.SetWordDelim(settings.GetWordDelimChars() + "#;(){}='\"<>");
+  settings.SetTokenIdIsFullWord(true);
+  settings.SetWordMaySurrondedByQoutes(true);
+  settings.SetAppropriateQuotes({{'"', '"'}, {'\'', '\''}, {'<', '>'}});
   parser.SetSettings(settings);
   parsers_.push_back(parser);
 }
@@ -187,5 +258,8 @@ std::vector<std::string> TestTokenParser::strs_ = {
     "mainc",
     "main=",
     "mainmain",
+
+    "# include <main> 345\n\"token with space\" \'word with 123 space\'",
+    "   ' word with \" qoutes \" <> <> qoitiis '  ",
 
 };
