@@ -151,6 +151,12 @@ bool StringParser::IsWordDelim(char ch) const {
   return false;
 }
 
+bool StringParser::IsQoute(char ch) const {
+  for (auto i : settings_.GetAppropriateQuotes())
+    if (ch == i.first) return true;
+  return false;
+}
+
 StringParser::size_type StringParser::NextParsingStart() const {
   size_type i = i_;
   while (i < str_->length() && IsSpace((*str_)[i])) ++i;
@@ -209,14 +215,25 @@ bool StringParser::IsIdNext(size_type i, const std::string& word) const {
 
 StringParser::WordIdx StringParser::NextWordIdx() const {
   size_type start = NextParsingStart();
-  size_type len = size_type(0);
   if (start >= str_->length()) return WordIdx{(size_type(0)), (size_type(0))};
-  if (IsWordDelim((*str_)[start])) {
-    return WordIdx{start, len + 1};
+
+  if (settings_.GetWordMaySurrondedByQoutes() && IsQoute((*str_)[start])) {
+    return NextWordIdxQouted(start);
+  } else if (IsWordDelim((*str_)[start])) {
+    return WordIdx{start, size_type(1)};
   }
 
+  size_type len = size_type(0);
   while (start + len < str_->length() && !IsWordDelim((*str_)[start + len]))
     ++len;
+  return WordIdx{start, len};
+}
+
+StringParser::WordIdx StringParser::NextWordIdxQouted(size_type start) const {
+  char cq = settings_.GetAppropriateQuotes().find((*str_)[start])->second;
+  size_type len = size_type(1);
+  while (start + len < str_->length() && (*str_)[start + len] != cq) ++len;
+  if ((*str_)[start + len] == cq) ++len;
   return WordIdx{start, len};
 }
 

@@ -37,7 +37,10 @@ FileParser::~FileParser() {}
 void FileParser::SetFile(const std::string& filename) {
   file_.close();
   file_.open(filename);
-  stream_parser_.SetStream(&file_);
+  if (file_.fail())
+    stream_parser_.SetStream(nullptr);
+  else
+    stream_parser_.SetStream(&file_);
 }
 
 void FileParser::SetSettings(const Settings& settings) {

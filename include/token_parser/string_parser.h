@@ -151,6 +151,7 @@ class StringParser {
 
   bool IsSpace(char ch) const;
   bool IsWordDelim(char ch) const;
+  bool IsQoute(char ch) const;
   size_type NextParsingStart() const;
 
   Token::int_type StrToInt(size_type start, size_type& len) const;
@@ -160,6 +161,7 @@ class StringParser {
   bool IsIdNext(size_type i, const std::string& word) const;
 
   WordIdx NextWordIdx() const;
+  WordIdx NextWordIdxQouted(size_type start) const;
   std::string WordIdxToString(const WordIdx& word_idx) const;
 
   Settings settings_;

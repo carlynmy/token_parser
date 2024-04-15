@@ -8,9 +8,12 @@
 namespace TokenParser {
 
 Settings::Settings()
-    : space_chars_(kDefaultSpaceChars_),
+    : token_ids_(kDefaultTokenIds_),
+      space_chars_(kDefaultSpaceChars_),
       word_delim_chars_(kDefaultWordDelimChars_),
-      token_id_is_full_word_(true) {}
+      token_id_is_full_word_(kDefaultTokenIdIsFullWord_),
+      word_may_surrounded_by_qoutes_(kDefaultWordMaySurroundedByQoutes_),
+      appropriate_quotes_(kDefaultAppropriateQuotes_) {}
 
 Settings::~Settings() {}
 
@@ -42,11 +45,28 @@ void Settings::SetTokenIdIsFullWord(bool token_id_is_full_word) {
   token_id_is_full_word_ = token_id_is_full_word;
 }
 
+void Settings::SetWordMaySurrondedByQoutes(bool word_may_surrounded_by_qoutes) {
+  word_may_surrounded_by_qoutes_ = word_may_surrounded_by_qoutes;
+}
+
+void Settings::SetAppropriateQuotes(
+    const AppropriateQuotes& appropriate_quotes) {
+  appropriate_quotes_ = appropriate_quotes;
+}
+
+void Settings::SetAppropriateQuotes(AppropriateQuotes&& appropriate_quotes) {
+  appropriate_quotes_ = std::move(appropriate_quotes);
+}
+
 Settings::TokenIds& Settings::GetTokenIds() { return token_ids_; }
 
 std::string& Settings::GetSpaceChars() { return space_chars_; }
 
 std::string& Settings::GetWordDelimChars() { return word_delim_chars_; }
+
+Settings::AppropriateQuotes& Settings::GetAppropriateQuotes() {
+  return appropriate_quotes_;
+}
 
 const Settings::TokenIds& Settings::GetTokenIds() const { return token_ids_; }
 
@@ -58,7 +78,20 @@ const std::string& Settings::GetWordDelimChars() const {
 
 bool Settings::GetTokenIdIsFullWord() const { return token_id_is_full_word_; }
 
-const std::string Settings::kDefaultSpaceChars_ = " \f\n\r\t\v";
-const std::string Settings::kDefaultWordDelimChars_ = " \f\n\r\t\v";
+bool Settings::GetWordMaySurrondedByQoutes() const {
+  return word_may_surrounded_by_qoutes_;
+}
+
+const Settings::AppropriateQuotes& Settings::GetAppropriateQuotes() const {
+  return appropriate_quotes_;
+}
+
+const Settings::TokenIds Settings::kDefaultTokenIds_ = {};
+const std::string Settings::kDefaultSpaceChars_ = "\n \f\r\t\v";
+const std::string Settings::kDefaultWordDelimChars_ = "\n \f\r\t\v";
+const bool Settings::kDefaultTokenIdIsFullWord_ = true;
+const bool Settings::kDefaultWordMaySurroundedByQoutes_ = false;
+const Settings::AppropriateQuotes Settings::kDefaultAppropriateQuotes_ = {
+    {'"', '"'}, {'\'', '\''}};
 
 }  // namespace TokenParser
