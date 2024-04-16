@@ -77,6 +77,9 @@ USAGE:
 
 namespace TokenParser {
 
+template <typename CharTcharchar>
+class StreamParser;
+
 /// @brief Token parser. Parse string to tokens. token is nothing(null), int,
 /// uint, float, id(substring is compared by id).
 class StringParser {
@@ -143,7 +146,10 @@ class StringParser {
   /// @return Next this id-token or null-token if no this id next.
   Token NextThisId(Token::id_type id);
 
- private:
+ protected:
+  template <typename CharT>
+  friend class StreamParser;
+
   struct WordIdx {
     size_type start_;
     size_type len_;
@@ -164,6 +170,7 @@ class StringParser {
   WordIdx NextWordIdxQouted(size_type start) const;
   std::string WordIdxToString(const WordIdx& word_idx) const;
 
+ private:
   Settings settings_;
   const std::string* str_;
   size_type i_;

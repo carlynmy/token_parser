@@ -303,6 +303,27 @@ std::vector<TestTokenParserTokenSeqData::Seq>
         {
             {false, "' word with \" qoutes \" <> <> qoitiis '", Token()},
         },
+        {
+            {true, "", Token(Token::id_type(12))},
+            {true, "", Token(Token::id_type(11))},
+            {false, "<ma\nin>", Token()},
+            {true, "", Token(Token::int_type(345))},
+            {true, "", Token(Token::id_type(13))},
+            {false, "\'word \nwith 123 space\'", Token()},
+        },
+        {
+            {true, "", Token(Token::id_type(12))},
+            {true, "", Token(Token::id_type(11))},
+            {false, "<ma\n\nin>", Token()},
+            {true, "", Token(Token::int_type(345))},
+            {true, "", Token(Token::id_type(14))},
+            {false, "\'word \nwith 123 \nspace\'", Token()},
+        },
+        {
+            {true, "", Token(Token::id_type(11))},
+            {true, "", Token(Token::id_type(7))},
+            {false, "'word\nwith\nno\n\nend bracket", Token()},
+        },
 
 };
 
@@ -312,7 +333,6 @@ class TestTokenParserTokenSeq : public TestTokenParser {
   static std::vector<TestTokenParserTokenSeqData> test_data_;
 };
 
-int TestTokenParserTokenSeq::count_ = 220;
 std::vector<TestTokenParserTokenSeqData> TestTokenParserTokenSeq::test_data_ = {
     {0, 0, 0, 0},    {1, 1, 0, 1},
 
@@ -378,9 +398,13 @@ std::vector<TestTokenParserTokenSeqData> TestTokenParserTokenSeq::test_data_ = {
     {3, 102, 0, 57}, {3, 103, 0, 58}, {3, 104, 0, 59}, {3, 105, 0, 60},
     {3, 106, 0, 61}, {3, 107, 0, 62}, {3, 108, 0, 63}, {3, 109, 0, 64},
 
-    {4, 110, 0, 65}, {4, 111, 0, 66},
+    {4, 110, 0, 65}, {4, 111, 0, 66}, {4, 112, 0, 67}, {4, 113, 0, 68},
+    {4, 114, 0, 69},
 
 };
+
+int TestTokenParserTokenSeq::count_ =
+    TestTokenParserTokenSeq::test_data_.size();
 
 TEST_P(TestTokenParserTokenSeq, Common) {
   int num_test = this->GetParam();
@@ -423,7 +447,7 @@ TEST_P(TestTokenParserTokenSeq, FileParser) {
 
   const std::string kTmpFilename = ".tmp_token_parser_token_seq_test.txt";
   std::ofstream file(kTmpFilename);
-  file << TestTokenParser::strs_[test_data.parsing_str_idx_] << std::endl;
+  file << TestTokenParser::strs_[test_data.parsing_str_idx_];
   file.close();
   TokenParser::FileParser parser;
   parser.SetSettings(
@@ -456,14 +480,62 @@ TEST_P(TestTokenParserTokenSeq, FileParser) {
   std::remove(kTmpFilename.c_str());
 }
 
-TEST_P(TestTokenParserTokenSeq, StreamParserIfstream) {
+TEST_P(TestTokenParserTokenSeq, FileParserNextThisId) {
   int num_test = this->GetParam();
   TestTokenParserTokenSeqData& test_data =
       TestTokenParserTokenSeq::test_data_[num_test];
 
   const std::string kTmpFilename = ".tmp_token_parser_token_seq_test.txt";
   std::ofstream file(kTmpFilename);
-  file << TestTokenParser::strs_[test_data.parsing_str_idx_] << std::endl;
+  file << TestTokenParser::strs_[test_data.parsing_str_idx_];
+  file.close();
+  TokenParser::FileParser parser;
+  parser.SetSettings(
+      TestTokenParser::parsers_[test_data.parser_idx_].GetSettings());
+  parser.SetFile(kTmpFilename);
+
+  TestTokenParserTokenSeqData::Seq seq =
+      TestTokenParserTokenSeqData::seqs_[test_data.seq_idx_];
+
+  for (auto i : seq) {
+    if (!i.is_token_) {
+      std::string res = parser.NextWord();
+      ASSERT_EQ(res, i.str_);
+      continue;
+    }
+
+    TokenParser::Token token;
+    if (i.token_.IsInt())
+      token = parser.NextInt();
+    else if (i.token_.IsUint())
+      token = parser.NextUint();
+    else if (i.token_.IsFloat())
+      token = parser.NextFloat();
+    else
+      token = parser.NextThisId(i.token_.GetId());
+
+    ASSERT_EQ(token, i.token_);
+  }
+
+  std::remove(kTmpFilename.c_str());
+}
+
+TEST_P(TestTokenParserTokenSeq, StreamParserIfstream) {
+  int num_test = this->GetParam();
+  TestTokenParserTokenSeqData& test_data =
+      TestTokenParserTokenSeq::test_data_[num_test];
+
+  int tmp = 0;
+  if (num_test == 220)
+    tmp++;
+  else if (num_test == 221)
+    tmp++;
+  else if (num_test == 222)
+    tmp++;
+
+  const std::string kTmpFilename = ".tmp_token_parser_token_seq_test.txt";
+  std::ofstream file(kTmpFilename);
+  file << TestTokenParser::strs_[test_data.parsing_str_idx_];
   file.close();
 
   const TokenParser::Settings& sett =
@@ -505,7 +577,7 @@ TEST_P(TestTokenParserTokenSeq, StreamParserStringstream) {
 
   const std::string kTmpFilename = ".tmp_token_parser_token_seq_test.txt";
   std::ofstream file(kTmpFilename);
-  file << TestTokenParser::strs_[test_data.parsing_str_idx_] << std::endl;
+  file << TestTokenParser::strs_[test_data.parsing_str_idx_];
   file.close();
 
   const TokenParser::Settings& sett =

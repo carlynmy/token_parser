@@ -151,9 +151,18 @@ class StreamParser {
   Token NextThisId(Token::id_type id);
 
  private:
+  using WordIdx = StringParser::WordIdx;
+
   /// @brief true if we can parse further, false if all end.
   bool CheckBuffOrUpdate();
   void UpdateBuff(char_type delim);
+  void AppendBuff(char_type delim);
+
+  bool HasChar(size_type start, char_type ch) const;
+
+  std::string NextWordQouted(size_type start);
+  Token NextIdQouted(size_type start);
+  Token NextThisIdQouted(size_type start, Token::id_type id);
 
   StringParser string_parser_;
   std::basic_istream<char_type>* stream_;

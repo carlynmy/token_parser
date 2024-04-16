@@ -128,6 +128,8 @@ void TestTokenParser::SetUpTestSuite() {
   token_ids.insert({10, "<token with space>"});
   token_ids.insert({11, "include"});
   token_ids.insert({12, "#"});
+  token_ids.insert({13, "\"token \nwith space\""});
+  token_ids.insert({14, "\"token \nwith \nspace\""});
   settings.SetTokenIds(token_ids);
   settings.SetWordDelim(settings.GetWordDelimChars() + "#;(){}='\"<>");
   settings.SetTokenIdIsFullWord(true);
@@ -261,5 +263,8 @@ std::vector<std::string> TestTokenParser::strs_ = {
 
     "# include <main> 345\n\"token with space\" \'word with 123 space\'",
     "   ' word with \" qoutes \" <> <> qoitiis '  ",
-
+    "# include <ma\nin> 345\n\"token \nwith space\" \'word \nwith 123 space\'",
+    "# include <ma\n\nin> 345\n\"token \nwith \nspace\" \'word \nwith 123 "
+    "\nspace\'",
+    "include\n= 'word\nwith\nno\n\nend bracket",
 };
