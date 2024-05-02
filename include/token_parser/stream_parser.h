@@ -94,9 +94,9 @@ class StreamParser {
   StreamParser(stream_type* stream);
   StreamParser(const Settings& settings, stream_type* stream);
   StreamParser(Settings&& settings, stream_type* stream);
-  StreamParser(const StreamParser& other) = delete;
+  StreamParser(const StreamParser& other) = default;
   StreamParser(StreamParser&& other) noexcept = default;
-  StreamParser& operator=(const StreamParser& other) = delete;
+  StreamParser& operator=(const StreamParser& other) = default;
   StreamParser& operator=(StreamParser&& other) noexcept = default;
   virtual ~StreamParser();
 
