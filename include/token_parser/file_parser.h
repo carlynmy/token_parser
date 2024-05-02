@@ -93,9 +93,9 @@ class FileParser {
   FileParser(const std::string& filename);
   FileParser(const Settings& settings, const std::string& filename);
   FileParser(Settings&& settings, const std::string& filename);
-  FileParser(const FileParser& other) = default;
+  FileParser(const FileParser& other) = delete;
   FileParser(FileParser&& other) noexcept = default;
-  FileParser& operator=(const FileParser& other) = default;
+  FileParser& operator=(const FileParser& other) = delete;
   FileParser& operator=(FileParser&& other) noexcept = default;
   virtual ~FileParser();
 
